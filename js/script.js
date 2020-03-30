@@ -100,4 +100,44 @@ window.addEventListener('DOMContentLoaded', function() {
         more.classList.remove('more-splash');
         document.body.style.overflow = '';
     });
+
+    // Form
+
+    let message = {
+        loading: 'Загрузка...',
+        success: 'Спасибо! Скоро мы с вами свяжемся!',
+        failure: 'Что-то пошло не так...'
+    };
+
+    let form = document.querySelector('.main-form'),
+        input = form.getElementsByTagName('input'),
+        statusMassage = document.createElement('div');
+
+        statusMassage.classList.add('status');
+
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        form.appendChild(statusMassage);
+
+        let request = new XMLHttpRequest();
+        request.open('POST', 'server.php');
+        request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+        let formData = new FormData(form);
+        request.send(formData);
+
+        request.addEventListener('readystatechange', function() {
+            if(request.readyState < 4) {
+                statusMassage.innerHTML = message.loading;
+            } else if(request.readyState === 4 && request.status == 200) {
+                statusMassage.innerHTML = message.success;
+            } else {
+                statusMassage.innerHTML = message.failure;
+            }
+        });
+
+        for (let i = 0; i < input.length; i++){
+            input[i].value = '';
+        }
+    });
 });
