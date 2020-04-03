@@ -119,25 +119,37 @@ window.addEventListener('DOMContentLoaded', function() {
         event.preventDefault();
         form.appendChild(statusMassage);
 
-        let request = new XMLHttpRequest();
-        request.open('POST', 'server.php');
-        request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-
         let formData = new FormData(form);
-        request.send(formData);
 
-        request.addEventListener('readystatechange', function() {
-            if(request.readyState < 4) {
-                statusMassage.innerHTML = message.loading;
-            } else if(request.readyState === 4 && request.status == 200) {
-                statusMassage.innerHTML = message.success;
-            } else {
-                statusMassage.innerHTML = message.failure;
-            }
-        });
+        function postData(data) {
+            return new Promise(function(resolve, reject) {
+                let request = new XMLHttpRequest();
+                request.open('POST', 'server.php');
+                request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 
-        for (let i = 0; i < input.length; i++){
-            input[i].value = '';
+                request.onreadystatechange = function() {
+                    if(request.readyState < 4) {
+                        resolve();
+                    } else if(request.readyState === 4 && request.status == 200) {
+                        resolve();
+                    } else {
+                        reject();
+                    }
+                };
+                request.send(data);
+            });
         }
+
+        function clearInput() {
+            for (let i = 0; i < input.length; i++){
+                input[i].value = '';
+            }
+        }
+        
+        postData(formData)
+            .then(()=> statusMassage.innerHTML = message.loading)
+            .then(()=> statusMassage.innerHTML = message.success)
+            .catch(()=> statusMassage.innerHTML = message.failure)
+            .then(clearInput)
     });
 });
